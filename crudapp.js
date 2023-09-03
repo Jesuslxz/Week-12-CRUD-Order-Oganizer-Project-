@@ -4,19 +4,16 @@ class Customer {
         this.order = [];
     }
 
-    addOrder(flower, quantity){
-        this.orders.push(new Order(flower, quantity));
+    addOrder(flower, quantity, id){
+        this.orders.push(new Order(flower, quantity, id));
     }
 }
 
 class Order{
-    // static numberOfOrders = 0;
-
-
-    constructor(flower, quantity){
+    constructor(flower, quantity, id){
         this.flower = flower;
         this.quantity = quantity;
-        // Order.numberOfOrders += 1;
+        this.id = id;
     }
 }
 
@@ -62,6 +59,7 @@ class FlowerService{
 
 class DOMManager {
     static customers;
+    static orderid = 0;
 
     static listAllCustomers(){
         //receives an array of customers held in the api
@@ -83,14 +81,18 @@ class DOMManager {
     }
     static addOrder(id){
         //loops through all customers and when the Id's match an order is instantiated 
+        
         for(let customer of this.customers){
+
             if (customer.id == id){
-                customer.orders.push(new Order($(`#${customer.id}-flower-order`).val(), $(`#${customer.id}-flower-quantity`).val()));
+                customer.orders.push(new Order($(`#${customer.id}-flower-order`).val(), $(`#${customer.id}-flower-quantity`).val(), this.orderid ));
+                console.log(this.orderId);
                 FlowerService.updateCustomer(customer)
                 .then(()=> {
                     return FlowerService.getAllCustomers();
                 })
                 .then((allCustomers => this.render(allCustomers)));
+                this.orderid++;
             }
         }
     }
@@ -100,7 +102,7 @@ class DOMManager {
             if( customer.id == customerId){
                 for(let order of customer.orders){
                     if(order.id == orderId){
-                        customer.rooms.splice(customer.orders.indexOf(order),1);
+                        customer.orders.splice(customer.orders.indexOf(order),1);
                         FlowerService.updateCustomer(customer)
                         .then(()=> {
                             return FlowerService.getAllCustomers();
@@ -138,7 +140,7 @@ class DOMManager {
                 </div><br>`
                 );
                 for (let order of customer.orders) {
-                    console.log(order)
+                    
               
                     $(`#${customer.id}`).find('.card-body').append(
                         `<p>
